@@ -27,6 +27,8 @@ namespace Scratch.Widgets {
         public Gtk.TextTag warning_tag;
         public Gtk.TextTag error_tag;
 
+        public Gtk.EventControllerKey event_controller_key;
+
         public GLib.File location { get; set; }
         public FolderManager.ProjectFolderItem project { get; set; default = null; }
 
@@ -89,6 +91,8 @@ namespace Scratch.Widgets {
             expand = true;
             manager = Gtk.SourceLanguageManager.get_default ();
             style_scheme_manager = new Gtk.SourceStyleSchemeManager ();
+
+            event_controller_key = new Gtk.EventControllerKey (this);
 
             font_css_provider = new Gtk.CssProvider ();
             get_style_context ().add_provider (font_css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
