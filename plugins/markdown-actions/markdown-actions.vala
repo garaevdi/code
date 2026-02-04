@@ -30,7 +30,7 @@ public class Code.Plugins.MarkdownActions : Peas.ExtensionBase, Scratch.Services
         plugins = (Scratch.Services.Interface) object;
         plugins.hook_document.connect ((doc) => {
             if (current_source != null) {
-                current_source.key_press_event.disconnect (shortcut_handler);
+                current_source.event_controller_key.key_pressed.disconnect (shortcut_handler);
                 current_source.notify["language"].disconnect (configure_shortcuts);
             }
 
@@ -44,25 +44,25 @@ public class Code.Plugins.MarkdownActions : Peas.ExtensionBase, Scratch.Services
     private void configure_shortcuts () {
         var lang = current_source.language;
         if (lang != null && lang.id == "markdown") {
-            current_source.key_press_event.connect (shortcut_handler);
+            current_source.event_controller_key.key_pressed.connect (shortcut_handler);
         } else {
-            current_source.key_press_event.disconnect (shortcut_handler);
+            current_source.event_controller_key.key_pressed.disconnect (shortcut_handler);
         }
     }
 
-    private bool shortcut_handler (Gdk.EventKey evt) {
-        var control = (evt.state & Gdk.ModifierType.CONTROL_MASK) != 0;
-        var shift = (evt.state & Gdk.ModifierType.SHIFT_MASK) != 0;
-        var other_mods = (evt.state & Gtk.accelerator_get_default_mod_mask () &
+    private bool shortcut_handler (uint keyval, uint keycode, Gdk.ModifierType state) {
+        var control = (state & Gdk.ModifierType.CONTROL_MASK) != 0;
+        var shift = (state & Gdk.ModifierType.SHIFT_MASK) != 0;
+        var other_mods = (state & Gtk.accelerator_get_default_mod_mask () &
                           ~Gdk.ModifierType.SHIFT_MASK &
                           ~Gdk.ModifierType.CONTROL_MASK) != 0;
 
-        if (evt.is_modifier == 1 || other_mods == true) {
+        if (other_mods == true) {
             return false;
         }
 
         if (control && shift) {
-            switch (evt.keyval) {
+            switch (keyval) {
                 case Gdk.Key.B:
                     add_markdown_tag ("**");
                     return true;
@@ -75,7 +75,7 @@ public class Code.Plugins.MarkdownActions : Peas.ExtensionBase, Scratch.Services
             }
         }
 
-        if (evt.keyval == Gdk.Key.Return) {
+        if (keyval == Gdk.Key.Return) {
             char ul_marker;
             int ol_number = 1;
             string item_text;
@@ -233,7 +233,7 @@ public class Code.Plugins.MarkdownActions : Peas.ExtensionBase, Scratch.Services
 
     public void deactivate () {
         if (current_source != null) {
-            current_source.key_press_event.disconnect (shortcut_handler);
+            current_source.event_controller_key.key_pressed.disconnect (shortcut_handler);
             current_source.notify["language"].disconnect (configure_shortcuts);
         }
     }
